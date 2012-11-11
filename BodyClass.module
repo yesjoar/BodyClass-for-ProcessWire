@@ -1,0 +1,113 @@
+<?php
+
+/**
+ * Body Class 1.0.0
+ *
+ * By Kai Seliger (http://www.yesjoar.com)
+ *
+ */
+
+class BodyClass extends WireData implements Module {
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => "Body Class",
+			'summary' => 'A ProcessWire module to add some classes to your body tag. That will give you a better control of your CSS.',
+			'version' => 100,
+			'href' => 'http://www.yesjoar.com',
+			'autoload' => false,
+			'singular' => true
+		);
+	}
+
+	public static $defaultOptions = array(
+		'page_id' => true, // bool (default true) return the page id
+		'page_id_prefix' => 'page-id-', // string (default 'page-id-') prefix for page_id
+		'parent_page_id' => true, // bool (default true) return the page id of of parents
+		'parent_page_id_prefix' => 'parent-page-id-', // string (default 'parent-page-id-') prefix for parent_page_id
+		'template_name' => true, // bool (default true) return the template name
+		'template_name_prefix' => 'template-', // string (default 'template-') prefix for template_name
+		'browser_info' => true // bool (default true) return some browser informations (os, browser, browserversion)
+	);
+
+	public function init() { }
+
+
+	public function bodyclass(Array $options = null) {
+		if($options != null && is_array($options)){
+			$options = array_merge(self::$defaultOptions, $options);
+		} else {
+			$options = self::$defaultOptions;
+		}
+		$page = wire('page');
+		$bodyclass = '';
+		$bodyclass .= $options['page_id'] ? $options['page_id_prefix'] . $page->id . " " : "";
+		$bodyclass .= $options['parent_page_id'] ? $page->parent != "" ? $options['parent_page_id_prefix'] . $page->parent_id . " " : "" : "";
+		$bodyclass .= $options['template_name'] ? $options['template_name_prefix'] . $page->template->name . " " : "";
+		$bodyclass .= $options['browser_info'] ? $this->browserinfo() : "";
+		return $bodyclass;
+	}
+	
+	private function browserinfo(){
+		$useragent = $_SERVER['HTTP_USER_AGENT'];
+		$os = 'Unknown';
+		$browser_name = 'Unknown';
+		$browser_version = "";
+		
+		// get the os
+		if(preg_match('/windows|win32/i', $useragent)){
+			$os = 'windows';
+		}elseif(preg_match('/macintosh|mac os x/i', $useragent)){
+			$os = 'mac';
+		}elseif(preg_match('/linux/i', $useragent)){
+			$os = 'linux';
+		}
+		
+		// get the browser
+		if(preg_match('/MSIE/i',$useragent) && !preg_match('/Opera/i',$useragent)){
+		    $browser = "MSIE";
+		    $browser_name = "ie";
+		}elseif(preg_match('/Firefox/i',$useragent)){
+		    $browser = "Firefox";
+		    $browser_name = "firefox";
+		}elseif(preg_match('/Chrome/i',$useragent)){
+		    $browser = "Chrome"; 
+		    $browser_name = "chrome";
+		}elseif(preg_match('/Safari/i',$useragent)){
+		    $browser = "Safari";
+		    $browser_name = "safari";
+		}elseif(preg_match('/Opera/i',$useragent)){
+		    $browser = "Opera";
+		    $browser_name = "opera";
+		}elseif(preg_match('/Netscape/i',$useragent)){
+		    $browser = "Netscape";
+		    $browser_name = "netscape";
+		}
+		
+		// get the browser version
+		$known = array('Version', $browser, 'other');
+		$pattern = '#(?<browser>' . join('|', $known) . ')[/ ]+(?<version>[0-9.|a-zA-Z.]*)#';
+		if(!preg_match_all($pattern, $useragent, $matches)){ }
+		
+		$i = count($matches['browser']);
+		if($i != 1){
+		    if(strripos($u_agent,"Version") < strripos($useragent,$browser)){
+		        $browser_version = $matches['version'][0];
+		    }else{
+		        $browser_version = $matches['version'][1];
+		    }
+		}else{
+		    $browser_version = $matches['version'][0];
+		}
+		
+		if($browser_version == null || $browser_version == ""){
+			$browser_version = "?";
+		}elseif(preg_match('/\d+\./',$browser_version,$versionmatch)){
+			$browser_version = str_replace('.', '', $versionmatch[0]);
+		}
+		
+		$browserinfooutput = $os . " " . $browser_name . " " . $browser_name . "" . $browser_version;
+		return $browserinfooutput;
+	}
+}
+?>
