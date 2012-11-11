@@ -50,7 +50,7 @@ So your body tag should look like this:
 ## Installation
 ***
 
-1. Copy the ProcessFieldChangeNotifier.module file into site/modules
+1. Copy the BodyClass.module file into site/modules
 2. In the admin interface, navigate to the modules page and hit the “Check for new modules” button
-3. Click on “ProcessFieldChangeNotifier” in the new module message or scroll down until you locate it
+3. Click on “BodyClass” in the new module message or scroll down until you locate it
 4. Click the “Install” button
